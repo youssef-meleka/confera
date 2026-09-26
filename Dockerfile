@@ -22,7 +22,7 @@ RUN groupadd -g "${GID}" app \
 WORKDIR /app
 
 COPY Gemfile Gemfile.lock ./
-RUN bundle install
+RUN bundle install && chown -R app:app /usr/local/bundle
 
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh

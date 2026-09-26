@@ -1,0 +1,17 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  track: one
+  title: MyString
+  description: MyText
+  speaker_name: MyString
+  starts_at: 2026-09-26 15:52:47
+  ends_at: 2026-09-26 15:52:47
+
+two:
+  track: two
+  title: MyString
+  description: MyText
+  speaker_name: MyString
+  starts_at: 2026-09-26 15:52:47
+  ends_at: 2026-09-26 15:52:47
