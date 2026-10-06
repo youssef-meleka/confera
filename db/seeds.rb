@@ -1,9 +1,35 @@
-# This file should ensure the existence of records required to run the application in every environment (production,
-# development, test). The code here should be idempotent so that it can be executed at any point in every environment.
-# The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
-#
-# Example:
-#
-#   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
-#     MovieGenre.find_or_create_by!(name: genre_name)
-#   end
+# db/seeds.rb
+require "factory_bot"
+FactoryBot.find_definitions
+
+puts "Seeding organizers and attendees..."
+organizers = FactoryBot.create_list(:user, 5)
+attendees  = FactoryBot.create_list(:user, 30)
+
+puts "Seeding conferences, tracks, talks, ticket types, and registrations..."
+organizers.each do |organizer|
+  rand(2..3).times do
+    conference = FactoryBot.create(:conference, organizer: organizer)
+
+    rand(2..4).times do
+      track = FactoryBot.create(:track, conference: conference)
+      rand(2..5).times { FactoryBot.create(:talk, track: track) }
+    end
+
+    ticket_types = FactoryBot.create_list(:ticket_type, rand(2..3), conference: conference)
+
+    attendees.sample(rand(5..15)).each do |attendee|
+      FactoryBot.create(:registration, user: attendee, ticket_type: ticket_types.sample)
+    rescue ActiveRecord::RecordInvalid
+      next # skip if this (user, ticket_type) pair already exists — hits the Module 2 unique index
+    end
+  end
+end
+
+puts "Done:"
+puts "  #{User.count} users (#{organizers.size} organizers, #{attendees.size} attendees)"
+puts "  #{Conference.count} conferences"
+puts "  #{Track.count} tracks"
+puts "  #{Talk.count} talks"
+puts "  #{TicketType.count} ticket types"
+puts "  #{Registration.count} registrations"
