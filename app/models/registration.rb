@@ -4,4 +4,5 @@ class Registration < ApplicationRecord
 
   enum :status, { pending: "pending", confirmed: "confirmed", cancelled: "cancelled" }
 
+  validates :user_id, uniqueness: { scope: :ticket_type_id, message: "is already registered for this ticket type" }
 end

@@ -9,6 +9,7 @@ Rails.application.routes.draw do
       delete "sessions/current", to: "sessions#destroy"
 
       resources :conferences
+      resources :registrations, only: [:index, :create]
     end
   end
 end
