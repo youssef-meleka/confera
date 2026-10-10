@@ -20,25 +20,17 @@ module Api
       end
 
       def create
-        @conference = Current.user.organized_conferences.new(conference_params)
-
-        if @conference.save
-          render json: @conference, include: RESPONSE_INCLUDES, status: :created
-        else
-          render json: { errors: @conference.errors.full_messages }, status: :unprocessable_entity
-        end
+        @conference = Current.user.organized_conferences.create!(conference_params)
+        render json: @conference, include: RESPONSE_INCLUDES, status: :created
       end
 
       def update
-        if @conference.update(conference_params)
-          render json: @conference, include: RESPONSE_INCLUDES
-        else
-          render json: { errors: @conference.errors.full_messages }, status: :unprocessable_entity
-        end
+        @conference.update!(conference_params)
+        render json: @conference, include: RESPONSE_INCLUDES
       end
 
       def destroy
-        @conference.destroy
+        @conference.destroy!
         head :no_content
       end
 
@@ -47,15 +39,11 @@ module Api
       def set_conference
         # Eager-load for show/update to avoid N+1 on the nested tree
         @conference = Conference.includes(:organizer, tracks: :talks, ticket_types: []).find(params[:id])
-      rescue ActiveRecord::RecordNotFound
-        render json: { error: "Conference not found" }, status: :not_found
       end
 
       # Temporary — replaced by ConferencePolicy in Module 9
       def authorize_organizer!
-        return if @conference&.organizer_id == Current.user.id
-
-        render json: { error: "Forbidden" }, status: :forbidden
+        raise Confera::NotAuthorized unless @conference.organizer_id == Current.user.id
       end
 
       def conference_params

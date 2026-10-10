@@ -12,4 +12,8 @@ Rails.application.routes.draw do
       resources :registrations, only: [:index, :create]
     end
   end
+
+  # Keep engine routes (Active Storage, Action Mailbox, ...) reachable
+  match "*unmatched", to: "application#route_not_found", via: :all,
+        constraints: ->(req) { !req.path.start_with?("/rails/") }
 end

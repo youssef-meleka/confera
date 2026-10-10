@@ -7,13 +7,10 @@ module Api
 
       def authenticate_request!
         session = session_from_bearer_token
+        raise Confera::Unauthenticated, "Invalid or expired token" unless session
 
-        if session
-          Current.session = session
-          session.touch(:last_used_at)
-        else
-          render json: { error: "Unauthorized" }, status: :unauthorized
-        end
+        Current.session = session
+        session.touch(:last_used_at)
       end
 
       def session_from_bearer_token

@@ -6,14 +6,12 @@ module Api
       def create
         user = User.find_by(email: params[:email])
 
-        if user&.authenticate(params[:password])
-          token = SecureRandom.hex(32)
-          session = user.sessions.create!(token_digest: Session.digest(token), expires_at: 2.weeks.from_now)
+        raise Confera::Unauthenticated, "Invalid email or password" unless user&.authenticate(params[:password])
 
-          render json: { token: token, expires_at: session.expires_at }, status: :created
-        else
-          render json: { error: "Invalid email or password" }, status: :unauthorized
-        end
+        token = SecureRandom.hex(32)
+        session = user.sessions.create!(token_digest: Session.digest(token), expires_at: 2.weeks.from_now)
+
+        render json: { token: token, expires_at: session.expires_at }, status: :created
       end
 
       def destroy

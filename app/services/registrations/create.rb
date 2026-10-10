@@ -25,22 +25,17 @@ module Registrations
 
     def attempt
       ticket_type = TicketType.lock.find_by(id: @ticket_type_id)
-      return Result.failure(:ticket_type_not_found, "Ticket type not found") unless ticket_type
+      return Result.failure(Confera::RecordNotFound.new("Ticket type not found")) unless ticket_type
 
-      unless ticket_type.conference.published?
-        return Result.failure(:conference_unpublished, "Conference is not open for registration")
-      end
-
-      if ticket_type.registrations_count >= ticket_type.capacity
-        return Result.failure(:sold_out, "This ticket type is sold out")
-      end
+      return Result.failure(Confera::RegistrationClosed.new) unless ticket_type.conference.published?
+      return Result.failure(Confera::CapacityExceeded.new) if ticket_type.registrations_count >= ticket_type.capacity
 
       registration = ticket_type.registrations.build(user: @user, status: :confirmed)
 
       if registration.save
         Result.success(registration)
       else
-        Result.failure(:invalid, registration.errors.full_messages.to_sentence)
+        Result.failure(Confera::ValidationFailed.new(registration))
       end
     end
   end
