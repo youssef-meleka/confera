@@ -30,6 +30,11 @@ class ApplicationController < ActionController::API
     render_error Confera::Conflict.new("Record already exists")
   end
 
+  rescue_from Pundit::NotAuthorizedError do |e|
+    Rails.logger.info("Denied: #{e.policy.class}##{e.query} for user=#{Current.user&.id}")
+    render_error Confera::NotAuthorized.new
+  end
+
   rescue_from Confera::Error do |e|
     render_error e
   end

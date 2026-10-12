@@ -8,7 +8,10 @@ Rails.application.routes.draw do
       post   "sessions",         to: "sessions#create"
       delete "sessions/current", to: "sessions#destroy"
 
-      resources :conferences
+      resources :conferences do
+        post :publish, on: :member
+        resources :talks, only: [:index]
+      end
       resources :registrations, only: [:index, :create]
     end
   end

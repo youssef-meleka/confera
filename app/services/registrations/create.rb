@@ -2,8 +2,9 @@ module Registrations
   class Create
     def self.call(...) = new(...).call
 
-    def initialize(user:, ticket_type_id:)
+    def initialize(user:, ticket_types:, ticket_type_id:)
       @user = user
+      @ticket_types = ticket_types
       @ticket_type_id = ticket_type_id
     end
 
@@ -24,7 +25,7 @@ module Registrations
     private
 
     def attempt
-      ticket_type = TicketType.lock.find_by(id: @ticket_type_id)
+      ticket_type = @ticket_types.lock.find_by(id: @ticket_type_id)
       return Result.failure(Confera::RecordNotFound.new("Ticket type not found")) unless ticket_type
 
       return Result.failure(Confera::RegistrationClosed.new) unless ticket_type.conference.published?

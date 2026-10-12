@@ -6,15 +6,17 @@ module Api
       }.freeze
 
       def index
-        @registrations = Current.user.registrations
-                                .includes(ticket_type: :conference)
-                                .order(created_at: :desc)
+        @registrations = policy_scope(Registration)
+                           .includes(ticket_type: :conference)
+                           .order(created_at: :desc)
         render json: @registrations, include: RESPONSE_INCLUDES
       end
 
       def create
+        authorize Registration
         @registration = Registrations::Create.call(
           user: Current.user,
+          ticket_types: TicketType.where(conference_id: policy_scope(Conference).select(:id)),
           ticket_type_id: registration_params[:ticket_type_id]
         ).value!
 

@@ -2,6 +2,7 @@ module Api
   module V1
     class SessionsController < Api::V1::BaseController
       skip_before_action :authenticate_request!, only: [:create]
+      skip_after_action  :verify_authorized
 
       def create
         user = User.find_by(email: params[:email])

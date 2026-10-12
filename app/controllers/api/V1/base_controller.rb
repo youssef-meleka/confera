@@ -1,9 +1,17 @@
 module Api
   module V1
     class BaseController < ApplicationController
+      include Pundit::Authorization
+
       before_action :authenticate_request!
 
+      after_action :verify_authorized,    except: :index
+      after_action :verify_policy_scoped, only: :index
+
       private
+
+      # Pundit calls `current_user` by default; we have Current.user
+      def pundit_user = Current.user
 
       def authenticate_request!
         session = session_from_bearer_token
