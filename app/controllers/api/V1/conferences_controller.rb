@@ -9,9 +9,20 @@ module Api
         ticket_types: {}
       }.freeze
 
+      # Lists stay slim: the full tree is only for show/create/update/publish.
+      # tracks_count is a column (counter cache), so it's in each row for free.
+      INDEX_INCLUDES = {
+        organizer: { only: [:id, :name] }
+      }.freeze
+
       def index
-        @conferences = policy_scope(Conference).includes(:organizer, tracks: :talks, ticket_types: []).order(starts_at: :asc)
-        render json: @conferences, include: RESPONSE_INCLUDES
+        scope = policy_scope(Conference).includes(:organizer)
+        @conferences = paginate(ConferencesQuery.call(scope, params))
+        # as_json here: `include:` on render json: is ignored once we render a Hash
+        render json: {
+          conferences: @conferences.as_json(include: INDEX_INCLUDES),
+          meta: @pagination
+        }
       end
 
       def show

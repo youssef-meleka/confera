@@ -2,6 +2,7 @@ module Api
   module V1
     class BaseController < ApplicationController
       include Pundit::Authorization
+      include Paginatable
 
       before_action :authenticate_request!
 

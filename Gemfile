@@ -32,6 +32,9 @@ gem "thruster", require: false
 # Authorization policies
 gem "pundit"
 
+# Pagination (pinned: Pagy's API changed substantially after 9.x)
+gem "pagy", "~> 9.3"
+
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
 gem "image_processing", "~> 1.2"
 
@@ -53,4 +56,9 @@ group :development, :test do
 
   gem "factory_bot_rails"
   gem "faker"
+end
+
+group :development do
+  # N+1 query detector
+  gem "bullet"
 end

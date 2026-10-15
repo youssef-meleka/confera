@@ -17,6 +17,10 @@ class ApplicationController < ActionController::API
     render_error Confera::BadRequest.new(e.message)
   end
 
+  rescue_from Pagy::VariableError do |e|
+    render_error Confera::BadRequest.new("Invalid pagination parameter: #{e.message}")
+  end
+
   rescue_from ActiveRecord::RecordNotFound do |e|
     render_error Confera::RecordNotFound.new("#{e.model || 'Record'} not found")
   end

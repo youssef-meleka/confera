@@ -6,10 +6,14 @@ module Api
       }.freeze
 
       def index
-        @registrations = policy_scope(Registration)
-                           .includes(ticket_type: :conference)
-                           .order(created_at: :desc)
-        render json: @registrations, include: RESPONSE_INCLUDES
+        scope = policy_scope(Registration)
+                  .includes(ticket_type: :conference)
+                  .order(created_at: :desc, id: :desc)
+        @registrations = paginate(scope)
+        render json: {
+          registrations: @registrations.as_json(include: RESPONSE_INCLUDES),
+          meta: @pagination
+        }
       end
 
       def create

@@ -2,7 +2,7 @@ module Api
   module V1
     class UsersController < Api::V1::BaseController
       skip_before_action :authenticate_request!, only: [:create]
-      skip_after_action  :verify_authorized
+      skip_after_action :verify_authorized, :verify_policy_scoped
 
       def create
         @user = User.create!(user_params)
