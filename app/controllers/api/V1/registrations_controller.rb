@@ -21,7 +21,8 @@ module Api
         @registration = Registrations::Create.call(
           user: Current.user,
           ticket_types: TicketType.where(conference_id: policy_scope(Conference).select(:id)),
-          ticket_type_id: registration_params[:ticket_type_id]
+          ticket_type_id: registration_params[:ticket_type_id],
+          request_id: request.request_id
         ).value!
 
         render json: @registration, include: RESPONSE_INCLUDES, status: :created

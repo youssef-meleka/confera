@@ -1,0 +1,9 @@
+Hi <%= @user.name %>,
+
+You're confirmed for <%= @conference.name %>.
+
+Ticket:  <%= @ticket_type.name %>
+Price:   <%= format("%.2f", @ticket_type.price_cents / 100.0) %>
+Starts:  <%= @conference.starts_at&.to_fs(:long) %>
+
+Registration #<%= @registration.id %>
