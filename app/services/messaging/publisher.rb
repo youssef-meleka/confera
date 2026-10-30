@@ -4,19 +4,12 @@ module Messaging
 
     CONFIRM_TIMEOUT = 3 # seconds
 
-    def self.publish(type, data, request_id: nil)
-      new.publish(type, data, request_id: request_id)
+    def self.publish(type, data, request_id: nil, event_id: SecureRandom.uuid)
+      new.publish(type, data, request_id: request_id, event_id: event_id)
     end
 
-    def publish(type, data, request_id: nil)
-      event_id = SecureRandom.uuid
-      payload = {
-        event_id:    event_id,
-        type:        type,
-        occurred_at: Time.current.utc.iso8601(3),
-        request_id:  request_id,
-        data:        data          # IDs only. The consumer reloads fresh state from the DB
-      }.to_json
+    def publish(type, data, request_id: nil, event_id: SecureRandom.uuid)
+      payload = Event.envelope(type, data, request_id: request_id, event_id: event_id).to_json
 
       Timeout.timeout(CONFIRM_TIMEOUT) do
         Broker.with_channel do |channel|

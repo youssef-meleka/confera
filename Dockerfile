@@ -14,6 +14,9 @@ RUN apt-get update -qq \
        libvips \
        libyaml-dev \
        pkg-config \
+       libssl-dev \
+       zlib1g-dev \
+       libzstd-dev \
     && rm -rf /var/lib/apt/lists/*
 
 RUN groupadd -g "${GID}" app \

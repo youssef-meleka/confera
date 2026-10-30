@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_15_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_18_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -25,6 +25,24 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_15_120000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["organizer_id"], name: "index_conferences_on_organizer_id"
+  end
+
+  create_table "processed_events", force: :cascade do |t|
+    t.string "event_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id"], name: "index_processed_events_on_event_id", unique: true
+  end
+
+  create_table "registration_rollups", force: :cascade do |t|
+    t.bigint "conference_id", null: false
+    t.bigint "ticket_type_id", null: false
+    t.date "day", null: false
+    t.integer "total", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["conference_id", "day"], name: "index_registration_rollups_on_conference_id_and_day"
+    t.index ["ticket_type_id", "day"], name: "index_registration_rollups_on_ticket_type_id_and_day", unique: true
   end
 
   create_table "registrations", force: :cascade do |t|

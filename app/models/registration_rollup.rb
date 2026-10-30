@@ -1,0 +1,2 @@
+class RegistrationRollup < ApplicationRecord
+end

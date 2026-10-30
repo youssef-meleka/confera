@@ -1,0 +1,2 @@
+class ProcessedEvent < ApplicationRecord
+end

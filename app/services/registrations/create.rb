@@ -19,19 +19,27 @@ module Registrations
 
       # Published AFTER the transaction has committed. Publishing inside it
       # could announce a registration that later rolls back.
-      publish_created(result.value) if result.success?
+      publish_events(result.value) if result.success?
       result
     end
 
     private
 
-    def publish_created(registration)
-      Messaging::Publisher.publish(
-        "registration.created",
-        { registration_id: registration.id, user_id: registration.user_id,
-          ticket_type_id: registration.ticket_type_id },
-        request_id: @request_id
-      )
+    def publish_events(registration)
+      event_id = SecureRandom.uuid   # one ID, both brokers
+      data = {
+        registration_id: registration.id,
+        user_id:         registration.user_id,
+        ticket_type_id:  registration.ticket_type_id,
+        conference_id:   registration.ticket_type.conference_id
+      }
+
+      publish_to_rabbitmq(registration, data, event_id)
+      publish_to_kafka(registration, data, event_id)
+    end
+
+    def publish_to_rabbitmq(registration, data, event_id)
+      Messaging::Publisher.publish("registration.created", data, request_id: @request_id, event_id: event_id)
     rescue StandardError => e
       # The registration IS committed. Raising here would reach the controller's
       # StandardError handler and return a 500 for a registration that exists.
@@ -39,6 +47,16 @@ module Registrations
       Rails.logger.error({ event: "event_publish_failed", registration_id: registration.id,
                            request_id: @request_id, error: e.class.name, message: e.message }.to_json)
       Rails.error.report(e, handled: true)
+    end
+
+    def publish_to_kafka(registration, data, event_id)
+      Messaging::KafkaPublisher.publish("registration.created", data,
+                                        key: registration.ticket_type_id,
+                                        request_id: @request_id, event_id: event_id)
+    rescue StandardError => e
+      # Nice-to-have path: warn and move on. No error report, no repair task.
+      Rails.logger.warn({ event: "analytics_publish_failed", registration_id: registration.id,
+                          request_id: @request_id, error: e.class.name, message: e.message }.to_json)
     end
 
     def attempt
