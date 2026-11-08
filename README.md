@@ -18,6 +18,10 @@ User ──< Conference ──< Track ──< Talk
 - Hand-rolled bearer-token auth (no Devise)
 - RabbitMQ and Kafka for two contrasting message-broker delivery patterns
 
+See **[docs/kafka.md](docs/kafka.md)** for the Kafka analytics flow and
+**[docs/rabbitmq.md](docs/rabbitmq.md)** for the RabbitMQ confirmation-email
+flow, including their components, delivery behavior, and local operations.
+
 ## Getting started
 
 No Ruby, Rails, or Postgres needs to be installed locally — everything runs through Docker.
